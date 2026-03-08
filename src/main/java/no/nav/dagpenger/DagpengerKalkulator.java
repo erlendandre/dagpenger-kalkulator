@@ -6,6 +6,8 @@ import java.util.Comparator;
 import java.util.List;
 
 import no.nav.grunnbeløp.GrunnbeløpVerktøy;
+import no.nav.saksbehandler.DagpengerUtkast;
+import no.nav.saksbehandler.Spesialisering;
 import no.nav.årslønn.Årslønn;
 
 /**
@@ -143,5 +145,29 @@ public class DagpengerKalkulator {
     public void sorterÅrslønnerBasertPåNyesteÅrslønn() {
         this.årslønner.sort(Comparator.comparingInt(Årslønn::hentÅretForLønn));
         Collections.reverse(this.årslønner);
+    }
+
+    /**
+     * Lager et utkast til dagpengerresultat som kan sendes til saksbehandling
+     *
+     * Utkastet klassifiseres som en spesialisering
+     * AVSLAG_FOR_LAV_INNTEKT hvis personen ikke har rett til dagpenger
+     * INNVILGET_MED_MAKSSATS hvis beregningsgrunnlaget overstiger makssats
+     * INNVILGET ellers
+     *
+     * @return utkast med beregnet dagsats og spesialisering
+     */
+    public DagpengerUtkast lagUtkast() {
+        if (!harRettigheterTilDagpenger()) {
+            return new DagpengerUtkast(0, Spesialisering.AVSLAG_FOR_LAV_INNTEKT);
+        }
+
+        BeregningsMetode metode = velgBeregningsMetode();
+        double dagsats = kalkulerDagsats();
+
+        if (metode == BeregningsMetode.MAKS_ÅRLIG_DAGPENGERGRUNNLAG) {
+            return new DagpengerUtkast(dagsats, Spesialisering.INNVILGET_MED_MAKSSATS);
+        }
+        return new DagpengerUtkast(dagsats, Spesialisering.INNVILGET);
     }
 }
