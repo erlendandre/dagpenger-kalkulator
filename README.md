@@ -30,3 +30,7 @@ Tester kjøres gjennom Gradle, og kan kjøres i terminalen med følgende kommand
 ````bash
 ./gradlew test
 ````
+## Kjør kalkulator (demo)
+````bash
+./gradlew run
+````

@@ -1,7 +1,5 @@
 package no.nav.grunnbeløp;
 
-import java.io.IOException;
-
 /**
  * Verktøy med forskjellige hjelpemetoder til å kalkulere forskjellige grunnbeløpsverdier, som
  * bruker i prossesen for å kalkulere hvilken dagsats en person har rett på. Grunnbeløpet brukt
@@ -12,14 +10,15 @@ import java.io.IOException;
  */
 public class GrunnbeløpVerktøy {
 
-    private double grunnbeløp;
+    private final double grunnbeløp;
+
+
+    public GrunnbeløpVerktøy(GrunnbeløpProvider provider) {
+        this.grunnbeløp = provider.hentGrunnbeløp();
+    }
 
     public GrunnbeløpVerktøy() {
-        try {
-            this.grunnbeløp = new GrunnbeløpAPI().hentGrunnbeløp();
-        } catch (IOException | InterruptedException exception) {
-            System.out.println("Problemer med tilkobling til grunnbeløp API'et" + exception.getMessage());
-        }
+        this(new GrunnbeløpAPI());
     }
 
     /**

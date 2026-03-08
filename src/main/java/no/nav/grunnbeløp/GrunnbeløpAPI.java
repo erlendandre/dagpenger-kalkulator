@@ -1,13 +1,14 @@
 package no.nav.grunnbeløp;
 
-import io.github.cdimascio.dotenv.Dotenv;
-import org.json.JSONObject;
-
 import java.io.IOException;
 import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
+
+import org.json.JSONObject;
+
+import io.github.cdimascio.dotenv.Dotenv;
 
 /**
  * Har ansvaret for å kontakte grunnbeløp API'et til NAV og henter dagens grunnbeløp.
@@ -15,7 +16,7 @@ import java.net.http.HttpResponse;
  * @author Emil Elton Nilsen
  * @version 1.0
  */
-public class GrunnbeløpAPI {
+public class GrunnbeløpAPI implements GrunnbeløpProvider {
 
     private final static Dotenv DOTENV = Dotenv.load();
 
@@ -23,6 +24,15 @@ public class GrunnbeløpAPI {
 
     public GrunnbeløpAPI() {
         this.grunnbeløpHTTPKlient = HttpClient.newHttpClient();
+    }
+
+    @Override
+    public double hentGrunnbeløp() {
+        try {
+            return hentGrunnbeløpFraAPI();
+        } catch (IOException | InterruptedException e) {
+            throw new RuntimeException("Problemer med tilkobling til grunnbeløp API'et", e);
+        }
     }
 
     /**
@@ -33,7 +43,7 @@ public class GrunnbeløpAPI {
      * @throws IOException
      * @throws InterruptedException
      */
-    public double hentGrunnbeløp() throws IOException, InterruptedException {
+    private double hentGrunnbeløpFraAPI() throws IOException, InterruptedException {
         HttpRequest grunnbeløpSpørring = HttpRequest.newBuilder(URI.create(DOTENV.get("G_API_URL"))).build();
 
         HttpResponse<String> grunnbeløpRespons =  this.grunnbeløpHTTPKlient.send(grunnbeløpSpørring, HttpResponse.BodyHandlers.ofString());
